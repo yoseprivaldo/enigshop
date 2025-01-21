@@ -1,21 +1,27 @@
 package com.enigmacamp.enigshop.entity;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.UUID;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "products")
 public class Product {
-    private UUID id;
-    private String name;
-    private Double price;
-    private Integer stock;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    public Product(String name, Double price, Integer stock){
-        this.id = UUID.randomUUID();
-        this.name = name;
-        this.price= price;
-        this.stock=stock;
-    }
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, columnDefinition = "BIGINT CHECK (price >=0)")
+    private Long price;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false, columnDefinition = "INT CHECK (stock >=0)")
+    private Integer stock;
 
 }
