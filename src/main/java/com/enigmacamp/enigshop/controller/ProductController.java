@@ -1,6 +1,7 @@
 package com.enigmacamp.enigshop.controller;
 import com.enigmacamp.enigshop.constant.APIUrl;
-import com.enigmacamp.enigshop.entity.Product;
+import com.enigmacamp.enigshop.dto.request.ProductRequest;
+import com.enigmacamp.enigshop.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,34 +18,27 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product addNewProduct(@RequestBody Product product){
-        return productService.create(product);
+    public ProductResponse addNewProduct(@RequestBody ProductRequest request){
+        return productService.create(request);
     }
 
     @GetMapping
-    public List<Product> getAll(@RequestParam(name = "search", required = false) String search){
+    public List<ProductResponse> getAll(@RequestParam(name = "search", required = false) String search){
         return productService.getAll(search);
     }
 
     @GetMapping("/{productId}")
-    public Product getProductById(@PathVariable String productId){
+    public ProductResponse getProductById(@PathVariable String productId){
         return productService.getById(productId);
     }
 
-//    @GetMapping("/{productId}")
-//    public Product getProductByName(@PathVariable String productName){
-//        Optional<Product> searchProduct = products.stream().filter(product -> product.getName().equalsIgnoreCase(productName)).findFirst();
-//
-//        return searchProduct.orElseThrow(() -> new RuntimeException("Product Not Found"));
-//    }
-
     @PutMapping
-    public Product updateProduct(@RequestBody Product product){
+    public ProductResponse updateProduct(@RequestBody ProductRequest product){
         return productService.updatePut(product);
     }
 
     @PatchMapping
-    public Product update(@RequestBody Product product){
+    public ProductResponse update(@RequestBody ProductRequest product){
        return productService.updatePatch(product);
     }
 

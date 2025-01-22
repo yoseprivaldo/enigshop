@@ -1,14 +1,14 @@
 package com.enigmacamp.enigshop.entity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "customers")
+@AllArgsConstructor
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

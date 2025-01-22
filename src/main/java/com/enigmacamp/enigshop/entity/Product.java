@@ -5,8 +5,10 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "products")
+@AllArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

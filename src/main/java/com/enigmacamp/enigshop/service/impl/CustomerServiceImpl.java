@@ -1,5 +1,7 @@
 package com.enigmacamp.enigshop.service.impl;
 
+import com.enigmacamp.enigshop.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.dto.response.CustomerResponse;
 import com.enigmacamp.enigshop.entity.Customer;
 import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
@@ -16,37 +18,69 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer create(Customer customer) {
-        return customerRepository.save(customer);
+    public CustomerResponse create(CustomerRequest request) {
+        Customer customer = mapToEntity(request);
+        customer = customerRepository.save(customer);
+        return mapToResponse(customer);
+
     }
 
     @Override
-    public List<Customer> getAll(String search) {
-        return customerRepository.findAllBySearch(search);
+    public List<CustomerResponse> getAll(String search) {
+        if(search!= null && !search.isEmpty()){
+            return customerRepository.findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search).stream().map(this:: mapToResponse).toList();
+        }
+        return customerRepository.findAll().stream().map(this::mapToResponse).toList();
     }
 
     @Override
-    public Customer getById(String id) {
+    public CustomerResponse getById(String id) {
+        return mapToResponse(getByIdAndThrowException(id));
+    }
+
+    private Customer getByIdAndThrowException(String id) {
         return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer tidak ditemukan"));
     }
 
     @Override
-    public Customer updatePatch(Customer customer) {
-        Customer existingCustomer = getById(customer.getId());
+    public CustomerResponse updatePatch(CustomerRequest request) {
+        Customer existingCustomer = getByIdAndThrowException(request.getId());
 
-        // Todo: Check field want to update
-        if(customer.getFullName() != null) existingCustomer.setFullName(customer.getFullName());
-        if(customer.getEmail() != null) existingCustomer.setEmail(customer.getEmail());
-        if(customer.getAddress() != null) existingCustomer.setAddress(customer.getAddress());
-        if(customer.getPhone() != null) existingCustomer.setPhone(customer.getPhone());
-        if(customer.getIsActive() != null) existingCustomer.setIsActive(customer.getIsActive());
+        if(request.getFullName() != null) existingCustomer.setFullName(request.getFullName());
+        if(request.getEmail() != null) existingCustomer.setEmail(request.getEmail());
+        if(request.getAddress() != null) existingCustomer.setAddress(request.getAddress());
+        if(request.getPhone() != null) existingCustomer.setPhone(request.getPhone());
+        if(request.getIsActive() != null) existingCustomer.setIsActive(request.getIsActive());
 
-        return customerRepository.saveAndFlush(existingCustomer);
+        return mapToResponse(customerRepository.saveAndFlush(existingCustomer));
     }
 
     @Override
     public void deleteById(String id) {
-        Customer customerExisting = getById(id);
+        Customer customerExisting = getByIdAndThrowException(id);
         customerRepository.delete(customerExisting);
+    }
+
+
+    public static Customer mapToEntity(CustomerRequest request){
+        return Customer.builder()
+                .id(request.getId())
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .isActive(request.getIsActive())
+                .build();
+    }
+
+    public CustomerResponse mapToResponse(Customer customer){
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .email(customer.getEmail())
+                .phone(customer.getPhone())
+                .address(customer.getAddress())
+                .isActive(customer.getIsActive())
+                .build();
     }
 }

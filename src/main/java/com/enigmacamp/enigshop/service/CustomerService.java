@@ -1,15 +1,16 @@
 package com.enigmacamp.enigshop.service;
 
+import com.enigmacamp.enigshop.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.dto.response.CustomerResponse;
 import com.enigmacamp.enigshop.entity.Customer;
 
 import java.util.List;
 
 public interface CustomerService {
-
-    Customer create(Customer customer);
-    List<Customer> getAll(String search);
-    Customer getById(String id);
-    Customer updatePatch(Customer customer);
+    CustomerResponse create(CustomerRequest customer);
+    List<CustomerResponse> getAll(String search);
+    CustomerResponse getById(String id);
+    CustomerResponse updatePatch(CustomerRequest customer);
     void deleteById(String id);
 
 }
