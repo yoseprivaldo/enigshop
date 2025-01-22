@@ -19,3 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findAllBySearch(@Param("search") String search);
 
 }
+
+

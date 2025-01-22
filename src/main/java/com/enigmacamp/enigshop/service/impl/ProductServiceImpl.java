@@ -5,12 +5,13 @@ import com.enigmacamp.enigshop.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.entity.Product;
 import com.enigmacamp.enigshop.repository.ProductRepository;
 import com.enigmacamp.enigshop.service.ProductService;
+import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
+import com.enigmacamp.enigshop.utils.validation.Validation;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-
     ProductRepository productRepository;
 
     public ProductServiceImpl(ProductRepository productRepository) {
@@ -19,37 +20,48 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse create(ProductRequest request) {
+        // validasi request
+        Validation.productRequest(request);
+
         Product product = mapToEntity(request);
-
         product = productRepository.save(product);
-
         return mapToResponse(product);
     }
 
-
     @Override
     public List<ProductResponse> getAll(String search) {
+        List<ProductResponse> list;
         if(search!=null && !search.isEmpty()){
-            return productRepository.findAllBySearch(search).stream().map(
-                    this::mapToResponse
-            ).toList();
+            list =  productRepository
+                    .findAllBySearch(search)
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        } else {
+            list = productRepository.findAll().stream().map(this::mapToResponse).toList();
         }
-        return productRepository.findAll().stream().map(this::mapToResponse).toList();
+
+        if(list.isEmpty()){
+            throw new ResourcesNotFoundException("Product Not Found");
+        }
+        return list;
     }
 
     @Override
     public ProductResponse getById(String id) {
         Product product = getProductById(id);
-
         return mapToResponse(product);
     }
 
     private Product getProductById(String id){
-        return productRepository.findById(id).orElseThrow( () -> new RuntimeException("Data tidak ditemukan"));
+        return productRepository.findById(id).orElseThrow( () -> new ResourcesNotFoundException("Data tidak ditemukan"));
     }
 
     @Override
     public ProductResponse updatePut(ProductRequest request) {
+        // validasi request
+        Validation.productRequest(request);
+
         getProductById(request.getId());
         Product product = mapToEntity(request);
         return mapToResponse(productRepository.saveAndFlush(product));

@@ -5,6 +5,7 @@ import com.enigmacamp.enigshop.dto.response.CustomerResponse;
 import com.enigmacamp.enigshop.entity.Customer;
 import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
+import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.List;
 @Service
 public class CustomerServiceImpl implements CustomerService {
     CustomerRepository customerRepository;
-
     public CustomerServiceImpl(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
@@ -27,10 +27,26 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerResponse> getAll(String search) {
+        List<CustomerResponse> list;
         if(search!= null && !search.isEmpty()){
-            return customerRepository.findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search).stream().map(this:: mapToResponse).toList();
+            list = customerRepository
+                    .findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search)
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        } else {
+            list = customerRepository
+                    .findAll()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
         }
-        return customerRepository.findAll().stream().map(this::mapToResponse).toList();
+
+        if(list.isEmpty()){
+            throw new ResourcesNotFoundException("Customer not found");
+        }
+
+        return list;
     }
 
     @Override
@@ -39,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private Customer getByIdAndThrowException(String id) {
-        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer tidak ditemukan"));
+        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
     @Override
