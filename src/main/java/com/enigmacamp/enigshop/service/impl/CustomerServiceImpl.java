@@ -1,14 +1,18 @@
 package com.enigmacamp.enigshop.service.impl;
 
 import com.enigmacamp.enigshop.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.dto.request.SearchRequest;
 import com.enigmacamp.enigshop.dto.response.CustomerResponse;
 import com.enigmacamp.enigshop.entity.Customer;
 import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
+import com.enigmacamp.enigshop.utils.validation.EntityValidation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -19,34 +23,34 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse create(CustomerRequest request) {
+
+        EntityValidation.customerRequest(request);
+
         Customer customer = mapToEntity(request);
         customer = customerRepository.save(customer);
         return mapToResponse(customer);
 
     }
 
+
     @Override
-    public List<CustomerResponse> getAll(String search) {
-        List<CustomerResponse> list;
-        if(search!= null && !search.isEmpty()){
-            list = customerRepository
-                    .findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search)
-                    .stream()
-                    .map(this::mapToResponse)
-                    .toList();
+    public Page<CustomerResponse> getAll(SearchRequest request) {
+        Page<Customer> customerPage;
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+
+        if(request.getQuery()!= null && !request.getQuery().isEmpty()){
+            customerPage = customerRepository
+                    .findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(request.getQuery(), request.getQuery(), pageable);
         } else {
-            list = customerRepository
-                    .findAll()
-                    .stream()
-                    .map(this::mapToResponse)
-                    .toList();
+            customerPage = customerRepository
+                    .findAll(pageable);
         }
 
-        if(list.isEmpty()){
+        if(customerPage.isEmpty()){
             throw new ResourcesNotFoundException("Customer not found");
         }
 
-        return list;
+        return customerPage.map(this::mapToResponse);
     }
 
     @Override

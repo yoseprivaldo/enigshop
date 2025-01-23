@@ -1,6 +1,8 @@
 package com.enigmacamp.enigshop.repository;
 
 import com.enigmacamp.enigshop.entity.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,8 +18,8 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
                     "(:search IS NULL OR LOWER(CAST(c.fullName AS string)) LIKE CONCAT('%', :search, '%') " +
                     "OR LOWER(CAST(c.address AS string)) LIKE CONCAT('%', :search, '%'))"
     )
-    List<Customer> findAllBySearch(@Param("search") String search);
+    Page<Customer> findAllBySearch(@Param("search") String search, Pageable pageable);
 
-    List<Customer> findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(String fullName, String address);
+    Page<Customer> findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(String fullName, String address, Pageable pageable);
 
 }

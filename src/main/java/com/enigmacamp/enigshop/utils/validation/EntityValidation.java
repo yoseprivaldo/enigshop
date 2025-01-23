@@ -4,7 +4,7 @@ import com.enigmacamp.enigshop.dto.request.CustomerRequest;
 import com.enigmacamp.enigshop.dto.request.ProductRequest;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 
-public class Validation {
+public class EntityValidation {
     public static void productRequest(ProductRequest productRequest) {
         if (productRequest == null) {
             throw new BadRequestException("Product request cannot be null");
@@ -49,4 +49,5 @@ public class Validation {
             throw new BadRequestException("Customer isActive status cannot be null");
         }
     }
+
 }

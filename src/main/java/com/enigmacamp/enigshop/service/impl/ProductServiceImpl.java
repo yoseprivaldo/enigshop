@@ -1,14 +1,17 @@
 package com.enigmacamp.enigshop.service.impl;
 
 import com.enigmacamp.enigshop.dto.request.ProductRequest;
+import com.enigmacamp.enigshop.dto.request.SearchRequest;
 import com.enigmacamp.enigshop.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.entity.Product;
 import com.enigmacamp.enigshop.repository.ProductRepository;
 import com.enigmacamp.enigshop.service.ProductService;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
-import com.enigmacamp.enigshop.utils.validation.Validation;
+import com.enigmacamp.enigshop.utils.validation.EntityValidation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -20,8 +23,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse create(ProductRequest request) {
-        // validasi request
-        Validation.productRequest(request);
+
+        EntityValidation.productRequest(request);
 
         Product product = mapToEntity(request);
         product = productRepository.save(product);
@@ -29,22 +32,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAll(String search) {
-        List<ProductResponse> list;
-        if(search!=null && !search.isEmpty()){
-            list =  productRepository
-                    .findAllBySearch(search)
-                    .stream()
-                    .map(this::mapToResponse)
-                    .toList();
+    public Page<ProductResponse> getAll(SearchRequest request) {
+
+        Page<Product> productPage;
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+
+        if(request.getQuery() !=null && !request.getQuery().isEmpty()){
+
+            productPage = productRepository.findAllBySearch(request.getQuery(), pageable);
         } else {
-            list = productRepository.findAll().stream().map(this::mapToResponse).toList();
+            productPage = productRepository.findAll(pageable);
         }
 
-        if(list.isEmpty()){
+        if(productPage.isEmpty()){
             throw new ResourcesNotFoundException("Product Not Found");
         }
-        return list;
+
+        return productPage.map(this::mapToResponse);
     }
 
     @Override
@@ -59,8 +63,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse updatePut(ProductRequest request) {
-        // validasi request
-        Validation.productRequest(request);
+        EntityValidation.productRequest(request);
 
         getProductById(request.getId());
         Product product = mapToEntity(request);
