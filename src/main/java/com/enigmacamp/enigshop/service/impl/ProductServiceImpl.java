@@ -34,17 +34,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> getAll(SearchRequest request) {
 
-        Page<Product> productPage;
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
-        if(request.getQuery() !=null && !request.getQuery().isEmpty()){
+        Page<Product> productPage =  request.getQuery() != null && !request.getQuery().isEmpty()
+                ? productRepository.findAllBySearch(request.getQuery(), pageable)
+                : productRepository.findAll(pageable);
 
-            productPage = productRepository.findAllBySearch(request.getQuery(), pageable);
-        } else {
-            productPage = productRepository.findAll(pageable);
-        }
-
-        if(productPage.isEmpty()){
+        if(productPage.getContent().isEmpty()){
             throw new ResourcesNotFoundException("Product Not Found");
         }
 

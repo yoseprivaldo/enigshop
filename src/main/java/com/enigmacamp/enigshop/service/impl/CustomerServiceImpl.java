@@ -32,19 +32,15 @@ public class CustomerServiceImpl implements CustomerService {
 
     }
 
-
     @Override
     public Page<CustomerResponse> getAll(SearchRequest request) {
-        Page<Customer> customerPage;
+
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
-        if(request.getQuery()!= null && !request.getQuery().isEmpty()){
-            customerPage = customerRepository
-                    .findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(request.getQuery(), request.getQuery(), pageable);
-        } else {
-            customerPage = customerRepository
-                    .findAll(pageable);
-        }
+        Page<Customer> customerPage = request.getQuery()!= null && !request.getQuery().isEmpty()
+                ? customerRepository.findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(
+                        request.getQuery(), request.getQuery(), pageable)
+                : customerRepository.findAll(pageable);
 
         if(customerPage.isEmpty()){
             throw new ResourcesNotFoundException("Customer not found");
