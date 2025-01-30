@@ -6,8 +6,6 @@ import com.enigmacamp.enigshop.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.entity.Product;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public interface ProductService {
 
     ProductResponse create(ProductRequest request);
@@ -16,5 +14,7 @@ public interface ProductService {
     ProductResponse updatePut(ProductRequest request);
     ProductResponse updatePatch(ProductRequest request);
     void deleteById(String id);
+    Product getProductById(String id);
+    Product updateProduct(Product product);
 
 }

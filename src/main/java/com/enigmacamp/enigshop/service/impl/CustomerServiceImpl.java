@@ -54,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
         return mapToResponse(getByIdAndThrowException(id));
     }
 
-    private Customer getByIdAndThrowException(String id) {
+    public Customer getByIdAndThrowException(String id) {
         return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 

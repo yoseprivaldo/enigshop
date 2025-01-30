@@ -100,6 +100,7 @@ public class DepartmentController {
         );
     }
 
+
     @PatchMapping
     public ResponseEntity<CommonResponse<DepartmentResponse>> update(@RequestBody DepartmentRequest request){
         DepartmentResponse product = departmentService.updatePatch(request);

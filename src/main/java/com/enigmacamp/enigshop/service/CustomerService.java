@@ -14,5 +14,6 @@ public interface CustomerService {
     CustomerResponse getById(String id);
     CustomerResponse updatePatch(CustomerRequest customer);
     void deleteById(String id);
+    Customer getByIdAndThrowException(String id);
 
 }

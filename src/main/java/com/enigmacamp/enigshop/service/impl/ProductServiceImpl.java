@@ -53,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
         return mapToResponse(product);
     }
 
-    private Product getProductById(String id){
+    public Product getProductById(String id){
         return productRepository.findById(id).orElseThrow( () -> new ResourcesNotFoundException("Data tidak ditemukan"));
     }
 
@@ -77,6 +77,18 @@ public class ProductServiceImpl implements ProductService {
         if(request.getStock() != null) existingProduct.setStock(request.getStock());
 
         return mapToResponse(productRepository.saveAndFlush(existingProduct));
+    }
+
+    @Override
+    public Product updateProduct(Product product) {
+        Product existingProduct = getProductById(product.getId());
+
+        if(product.getName() != null) existingProduct.setName(product.getName());
+        if(product.getPrice() != null) existingProduct.setPrice(product.getPrice());
+        if(product.getDescription() != null) existingProduct.setDescription(product.getDescription());
+        if(product.getStock() != null) existingProduct.setStock(product.getStock());
+
+        return existingProduct;
     }
 
     @Override

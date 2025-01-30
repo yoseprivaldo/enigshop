@@ -36,11 +36,11 @@ public class GlobalExceptionController {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<CommonResponse<String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<CommonResponse<String>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         String message = String.format("Parameter '%s' must be '%s'. Received: '%s'",
-                ex.getName(),
-                ex.getRequiredType().getSimpleName(),
-                ex.getValue());
+                e.getName(),
+                e.getRequiredType().getSimpleName(),
+                e.getValue());
 
         CommonResponse<String> response = CommonResponse.<String>builder()
                 .status(HttpStatus.BAD_REQUEST.value())

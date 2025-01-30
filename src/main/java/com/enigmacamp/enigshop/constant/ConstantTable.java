@@ -1,0 +1,8 @@
+package com.enigmacamp.enigshop.constant;
+
+public class ConstantTable {
+    public static final String PRODUCT = "products";
+    public static final String CUSTOMER = "customers";
+    public static final String TRANSACTION = "transactions";
+    public static final String TRANSACTION_DETAIL = "transaction_detail";
+}
