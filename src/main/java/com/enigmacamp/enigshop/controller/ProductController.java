@@ -1,28 +1,41 @@
 package com.enigmacamp.enigshop.controller;
 import com.enigmacamp.enigshop.constant.APIUrl;
-import com.enigmacamp.enigshop.dto.request.ProductRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.CommonResponse;
-import com.enigmacamp.enigshop.dto.response.PagingResponse;
-import com.enigmacamp.enigshop.dto.response.ProductResponse;
+import com.enigmacamp.enigshop.entity.dto.request.ProductRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.request.UpdateProductRequest;
+import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
+import com.enigmacamp.enigshop.entity.dto.response.PagingResponse;
+import com.enigmacamp.enigshop.entity.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.service.ProductService;
 import com.enigmacamp.enigshop.utils.validation.PagingUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
 @RequestMapping(path = APIUrl.PRODUCT_API)
+@Slf4j
 public class ProductController {
 
     ProductService productService;
+    ObjectMapper objectMapper;
 
-    public ProductController(ProductService productService) {
+    @Autowired
+    public ProductController(ProductService productService, ObjectMapper objectMapper) {
         this.productService = productService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping
@@ -82,15 +95,55 @@ public class ProductController {
         );
     }
 
-    @PutMapping
-    public ResponseEntity<CommonResponse<ProductResponse>> updateProduct(@RequestBody ProductRequest request){
-        ProductResponse product = productService.updatePut(request);
-        return mapToResponseEntity(
-                HttpStatus.OK,
-                "success updated data",
-                product,
-                null
-        );
+    @PutMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> updateProduct(
+            @RequestPart("product") String jsonProduct, // ini tuh bisa menghasilkan  JsonProcessingException
+            @RequestPart(name = "images", required = false) List<MultipartFile> images // ini juga
+    ){
+        try{
+
+            if(jsonProduct == null || jsonProduct.isBlank()){
+                return mapToResponseEntity(
+                        HttpStatus.BAD_REQUEST,
+                        "Format request is not valid",
+                        null,
+                        null
+                );
+            }
+
+            UpdateProductRequest request = objectMapper.readValue(jsonProduct, UpdateProductRequest.class);
+
+            request.setImages(Objects.requireNonNullElse(images, Collections.emptyList()));
+
+            ProductResponse productResponse = productService.updatePut(request);
+
+            return mapToResponseEntity(
+                    HttpStatus.OK,
+                    "success updated data product",
+                    productResponse,
+                    null
+            );
+
+        }  catch (JsonProcessingException e) {
+            log.error("JSON parsing error: {}", e.getLocalizedMessage());
+            return mapToResponseEntity(
+                    HttpStatus.BAD_REQUEST,
+                    "Format JSON tidak valid",
+                    null,
+                    null
+            );
+        } catch (Exception e){
+            log.error("Unexpected error: {}", e.getLocalizedMessage());
+            return mapToResponseEntity(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage(),
+                    null,
+                    null
+            );
+        }
     }
 
     @PatchMapping

@@ -1,4 +1,4 @@
-package com.enigmacamp.enigshop.dto.response;
+package com.enigmacamp.enigshop.entity.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,13 +1,11 @@
-package com.enigmacamp.enigshop.dto.response;
+package com.enigmacamp.enigshop.entity.dto.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-public class DepartmentResponse {
+public class DepartmentRequest {
     private Long id;
     private String name;
     private String code;

@@ -1,12 +1,12 @@
 package com.enigmacamp.enigshop.service.impl;
 
-import com.enigmacamp.enigshop.dto.request.DepartmentRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.DepartmentResponse;
+import com.enigmacamp.enigshop.entity.dto.request.DepartmentRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.response.DepartmentResponse;
 import com.enigmacamp.enigshop.entity.Department;
 import com.enigmacamp.enigshop.repository.DepartmentRepository;
 import com.enigmacamp.enigshop.service.DepartmentService;
-import com.enigmacamp.enigshop.specification.DepartmentSpecification;
+import com.enigmacamp.enigshop.utils.specification.DepartmentSpecification;
 import com.enigmacamp.enigshop.utils.SortingUtil;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import org.springframework.data.domain.Page;

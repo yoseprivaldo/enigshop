@@ -1,24 +1,39 @@
 package com.enigmacamp.enigshop.service.impl;
 
-import com.enigmacamp.enigshop.dto.request.ProductRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.ProductResponse;
+import com.enigmacamp.enigshop.entity.dto.request.ProductRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.request.UpdateProductRequest;
+import com.enigmacamp.enigshop.entity.dto.response.ProductResponse;
+import com.enigmacamp.enigshop.entity.Image;
 import com.enigmacamp.enigshop.entity.Product;
 import com.enigmacamp.enigshop.repository.ProductRepository;
+import com.enigmacamp.enigshop.service.ImageService;
 import com.enigmacamp.enigshop.service.ProductService;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import com.enigmacamp.enigshop.utils.validation.EntityValidation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
     ProductRepository productRepository;
+    ImageService imageService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    @Autowired
+    public ProductServiceImpl(ProductRepository productRepository, ImageService imageService) {
         this.productRepository = productRepository;
+        this.imageService = imageService;
     }
 
     @Override
@@ -58,14 +73,53 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse updatePut(ProductRequest request) {
-        EntityValidation.productRequest(request);
+    @Transactional
+    public ProductResponse updatePut(UpdateProductRequest request) {
+        Product product = productRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourcesNotFoundException("Product not found"));
 
-        getProductById(request.getId());
-        Product product = mapToEntity(request);
-        return mapToResponse(productRepository.saveAndFlush(product));
+        product.setName(request.getName());
+        product.setStock(request.getStock());
+        product.setDescription(request.getDescription());
+
+        if (product.getImages() == null) {
+            product.setImages(new ArrayList<>());
+        }
+
+        List<File> savedFiles = new ArrayList<>();
+
+        try {
+            if(request.getImages() != null && !request.getImages().isEmpty()) {
+                for (MultipartFile image : request.getImages()) {
+                    log.info("Processing image: {}", image.getOriginalFilename());
+
+                    Image imageToSave = imageService.create(image, "product");
+
+                    imageToSave.setProduct(product);
+                    product.getImages().add(imageToSave);
+
+                    log.info("Assigned product ID: {}", product.getId());
+                    log.info("Saving image with name: {} and path: {}", imageToSave.getName(), imageToSave.getPath());
+
+                    File savedFile = new File(imageToSave.getPath());
+                    savedFiles.add(savedFile);
+                }
+
+            } else {
+                log.warn("No images provide for the product.");
+            }
+            // Todo: Services to Save Image
+            return mapToResponse(productRepository.saveAndFlush(product));
+
+        }  catch (Exception e){
+            for (File file: savedFiles) {
+                if(file.exists()){
+                    file.delete();
+                }
+            }
+            throw e;
+        }
     }
-
 
     @Override
     public ProductResponse updatePatch(ProductRequest request) {

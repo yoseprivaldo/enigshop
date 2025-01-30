@@ -1,8 +1,8 @@
 package com.enigmacamp.enigshop.service;
 
-import com.enigmacamp.enigshop.dto.request.DepartmentRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.DepartmentResponse;
+import com.enigmacamp.enigshop.entity.dto.request.DepartmentRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.response.DepartmentResponse;
 import org.springframework.data.domain.Page;
 
 public interface DepartmentService {

@@ -5,4 +5,5 @@ public class ConstantTable {
     public static final String CUSTOMER = "customers";
     public static final String TRANSACTION = "transactions";
     public static final String TRANSACTION_DETAIL = "transaction_detail";
+    public static final String IMAGE= "m_image";
 }

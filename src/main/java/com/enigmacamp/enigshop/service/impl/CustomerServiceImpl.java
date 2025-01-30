@@ -1,11 +1,14 @@
 package com.enigmacamp.enigshop.service.impl;
 
-import com.enigmacamp.enigshop.dto.request.CustomerRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.CustomerResponse;
+import com.enigmacamp.enigshop.entity.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.request.UpdateCustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.response.CustomerResponse;
 import com.enigmacamp.enigshop.entity.Customer;
+import com.enigmacamp.enigshop.entity.Image;
 import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
+import com.enigmacamp.enigshop.service.ImageService;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import com.enigmacamp.enigshop.utils.validation.EntityValidation;
 import org.springframework.data.domain.Page;
@@ -17,8 +20,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerServiceImpl implements CustomerService {
     CustomerRepository customerRepository;
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    ImageService imageService;
+
+    public CustomerServiceImpl(CustomerRepository customerRepository, ImageService imageService) {
         this.customerRepository = customerRepository;
+        this.imageService = imageService;
     }
 
     @Override
@@ -72,11 +78,30 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerResponse updatePut(UpdateCustomerRequest request) {
+        getByIdAndThrowException(request.getId());
+
+        Customer customer = Customer.builder()
+                .id(request.getId())
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .isActive(request.getIsActive())
+                .build();
+
+        // Todo: Service to Save Image
+        Image image = imageService.create(request.getImage(), "customer");
+        customer.setImage(image);
+
+        return mapToResponse(customerRepository.saveAndFlush(customer));
+    }
+
+    @Override
     public void deleteById(String id) {
         Customer customerExisting = getByIdAndThrowException(id);
         customerRepository.delete(customerExisting);
     }
-
 
     public static Customer mapToEntity(CustomerRequest request){
         return Customer.builder()

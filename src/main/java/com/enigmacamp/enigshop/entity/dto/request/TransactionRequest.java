@@ -1,4 +1,4 @@
-package com.enigmacamp.enigshop.dto.request;
+package com.enigmacamp.enigshop.entity.dto.request;
 
 
 import lombok.AllArgsConstructor;

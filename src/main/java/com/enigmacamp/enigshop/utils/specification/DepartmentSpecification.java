@@ -1,4 +1,4 @@
-package com.enigmacamp.enigshop.specification;
+package com.enigmacamp.enigshop.utils.specification;
 
 import com.enigmacamp.enigshop.entity.Department;
 import jakarta.persistence.criteria.CriteriaBuilder;

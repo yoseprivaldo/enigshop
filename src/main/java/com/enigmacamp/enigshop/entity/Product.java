@@ -2,6 +2,9 @@ package com.enigmacamp.enigshop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,5 +28,9 @@ public class Product {
 
     @Column(nullable = false, columnDefinition = "INT CHECK (stock >=0)")
     private Integer stock;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Image> images = new ArrayList<>();
 
 }

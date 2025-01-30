@@ -1,11 +1,11 @@
 package com.enigmacamp.enigshop.controller;
 
 import com.enigmacamp.enigshop.constant.APIUrl;
-import com.enigmacamp.enigshop.dto.request.DepartmentRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.CommonResponse;
-import com.enigmacamp.enigshop.dto.response.DepartmentResponse;
-import com.enigmacamp.enigshop.dto.response.PagingResponse;
+import com.enigmacamp.enigshop.entity.dto.request.DepartmentRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
+import com.enigmacamp.enigshop.entity.dto.response.DepartmentResponse;
+import com.enigmacamp.enigshop.entity.dto.response.PagingResponse;
 import com.enigmacamp.enigshop.service.DepartmentService;
 import com.enigmacamp.enigshop.utils.validation.PagingUtil;
 import org.springframework.beans.factory.annotation.Autowired;

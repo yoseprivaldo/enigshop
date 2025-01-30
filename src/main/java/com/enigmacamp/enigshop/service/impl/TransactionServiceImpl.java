@@ -1,20 +1,27 @@
 package com.enigmacamp.enigshop.service.impl;
 
-import com.enigmacamp.enigshop.dto.request.TransactionRequest;
-import com.enigmacamp.enigshop.dto.response.ProductResponse;
-import com.enigmacamp.enigshop.dto.response.TransactionDetailResponse;
-import com.enigmacamp.enigshop.dto.response.TransactionResponse;
-import com.enigmacamp.enigshop.entity.Customer;
-import com.enigmacamp.enigshop.entity.Product;
-import com.enigmacamp.enigshop.entity.Transaction;
-import com.enigmacamp.enigshop.entity.TransactionDetail;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.request.TransactionRequest;
+import com.enigmacamp.enigshop.entity.dto.response.ProductResponse;
+import com.enigmacamp.enigshop.entity.dto.response.TransactionDetailResponse;
+import com.enigmacamp.enigshop.entity.dto.response.TransactionResponse;
+import com.enigmacamp.enigshop.entity.*;
+import com.enigmacamp.enigshop.repository.DepartmentRepository;
 import com.enigmacamp.enigshop.repository.TransactionDetailRepository;
 import com.enigmacamp.enigshop.repository.TransactionRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
 import com.enigmacamp.enigshop.service.ProductService;
 import com.enigmacamp.enigshop.service.TransactionService;
+import com.enigmacamp.enigshop.utils.SortingUtil;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
+import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
+import com.enigmacamp.enigshop.utils.specification.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionDetailRepository transactionDetailRepository;
     private final CustomerService customerService;
     private final ProductService productService;
-
+    private final DepartmentRepository departmentRepository;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -86,6 +93,53 @@ public class TransactionServiceImpl implements TransactionService {
                 .date(savedTransaction.getTransactionDate())
                 .transactionDetails(listDetailResponse) // Todo: need more mapping entity to response
                 .totalPayment(totalPayment.get())
+                .build();
+    }
+
+
+    @Override
+    public Page<TransactionResponse> getAll(SearchRequest searchRequest) {
+        String fieldName = SortingUtil.sortByValidation(Transaction.class, searchRequest.getSortBy(), "id");
+
+        searchRequest.setSortBy(fieldName);
+
+        Sort.Direction direction = Sort.Direction.fromString(searchRequest.getDirection());
+
+        Specification<Transaction> spec = TransactionSpecification.filterByCriteria(
+                searchRequest.getQuery(),
+                searchRequest.getCode());
+
+        Pageable pageable = PageRequest.of(
+                searchRequest.getPage(),
+                searchRequest.getSize(),
+                direction,
+                searchRequest.getSortBy()
+        );
+
+        Page<Transaction> transactionPage = transactionRepository.findAll(spec,pageable);
+
+        if (transactionPage.isEmpty()) {
+            throw new ResourcesNotFoundException("No transactions found");
+        }
+
+        return transactionPage.map(this::mapToTransactionResponse);
+    }
+
+
+
+    private TransactionResponse mapToTransactionResponse(Transaction transaction) {
+        List<TransactionDetailResponse> detailResponses = transaction.getTransactionDetails().stream()
+                .map(this::mapToDetailTransactionResponses)
+                .toList();
+
+        return TransactionResponse.builder()
+                .id(transaction.getId())
+                .customer(transaction.getCustomer())
+                .date(transaction.getTransactionDate())
+                .transactionDetails(detailResponses)
+                .totalPayment(detailResponses.stream()
+                .mapToLong(detail -> detail.getProductPrice() * detail.getQty())
+                .sum())
                 .build();
     }
 

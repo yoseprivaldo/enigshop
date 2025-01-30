@@ -1,7 +1,7 @@
 package com.enigmacamp.enigshop.utils.validation;
 
-import com.enigmacamp.enigshop.dto.request.CustomerRequest;
-import com.enigmacamp.enigshop.dto.request.ProductRequest;
+import com.enigmacamp.enigshop.entity.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.request.ProductRequest;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 
 public class EntityValidation {

@@ -1,27 +1,33 @@
 package com.enigmacamp.enigshop.controller;
 import com.enigmacamp.enigshop.constant.APIUrl;
-import com.enigmacamp.enigshop.dto.request.CustomerRequest;
-import com.enigmacamp.enigshop.dto.request.SearchRequest;
-import com.enigmacamp.enigshop.dto.response.CommonResponse;
-import com.enigmacamp.enigshop.dto.response.CustomerResponse;
-import com.enigmacamp.enigshop.dto.response.PagingResponse;
+import com.enigmacamp.enigshop.entity.dto.request.CustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.request.SearchRequest;
+import com.enigmacamp.enigshop.entity.dto.request.UpdateCustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
+import com.enigmacamp.enigshop.entity.dto.response.CustomerResponse;
+import com.enigmacamp.enigshop.entity.dto.response.PagingResponse;
 import com.enigmacamp.enigshop.service.CustomerService;
 import com.enigmacamp.enigshop.utils.validation.PagingUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
 @RequestMapping(path = APIUrl.CUSTOMER_API)
+@RequiredArgsConstructor
+@Slf4j
 public class CustomerController {
 
     private final CustomerService customerService;
-
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
-    }
+    private final ObjectMapper objectMapper;
 
     @PostMapping
     public ResponseEntity<CommonResponse<CustomerResponse>> addNewCustomer(@RequestBody CustomerRequest request){
@@ -81,6 +87,39 @@ public class CustomerController {
                 customer,
                 null
         );
+    }
+
+    @PutMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> updateCustomer(
+            @RequestPart(name = "customer") String jsonCustomer,
+            @RequestPart(name = "image") MultipartFile image
+            )  {
+
+        try {
+            UpdateCustomerRequest request = objectMapper.readValue(jsonCustomer, UpdateCustomerRequest.class);
+            request.setImage(image);
+
+            CustomerResponse customerResponse = customerService.updatePut(request);
+
+            return mapToResponseEntity(
+                    HttpStatus.OK,
+                    "Customer with Id " + request.getId() + " updated successfully.",
+                    customerResponse,
+                    null
+            );
+        } catch (Exception e) {
+            log.error("error: {} ", e.getLocalizedMessage());
+            return mapToResponseEntity(
+                    HttpStatus.BAD_REQUEST,
+                    "Mohon maaf, terjadi kesalahan request",
+                    null,
+                    null
+            );
+        }
+
     }
 
     @PatchMapping

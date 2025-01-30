@@ -1,6 +1,6 @@
 package com.enigmacamp.enigshop.controller.exception;
 
-import com.enigmacamp.enigshop.dto.response.CommonResponse;
+import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import org.springframework.http.HttpStatus;
