@@ -38,15 +38,15 @@ public class ImageServiceImpl implements ImageService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File type not supported");
             }
 
-            // create folder if not exist
+            // todo: create folder if not exist
             Path categoryPath = path.resolve(category);
-           Files.createDirectories(categoryPath);
+            Files.createDirectories(categoryPath);
 
             // Todo: Generate MultipartFile to Image and save to disk
             String uniqueFileName = System.currentTimeMillis() + "-" + multipartFile.getOriginalFilename();
             Path filePath = categoryPath.resolve(uniqueFileName);
 
-            // jika file sudah ada maka akan menghasilkan FileAlreadyExistException (StandardOpenOption.CREATE_NEW)
+            // todo: jika file sudah ada maka akan menghasilkan FileAlreadyExistException (StandardOpenOption.CREATE_NEW)
             Files.write(filePath, multipartFile.getBytes(), StandardOpenOption.CREATE_NEW);
 
             // Todo: Save image to database

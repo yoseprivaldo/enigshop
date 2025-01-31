@@ -33,4 +33,8 @@ public class Customer {
     @JoinColumn(name = "image_id")
     private Image image;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_account_id", referencedColumnName = "id", unique = true)
+    private UserAccount userAccount;
+
 }

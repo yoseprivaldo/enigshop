@@ -138,8 +138,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .date(transaction.getTransactionDate())
                 .transactionDetails(detailResponses)
                 .totalPayment(detailResponses.stream()
-                .mapToLong(detail -> detail.getProductPrice() * detail.getQty())
-                .sum())
+                    .mapToLong(detail -> detail.getProductPrice() * detail.getQty())
+                    .sum())
                 .build();
     }
 
