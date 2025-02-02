@@ -7,10 +7,11 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.enigmacamp.enigshop.entity.UserAccount;
 import com.enigmacamp.enigshop.entity.dto.response.JwtClaims;
-import com.enigmacamp.enigshop.repository.UserAccountRepository;
 import com.enigmacamp.enigshop.service.JwtService;
+import com.enigmacamp.enigshop.service.UserAccountService;
+import com.enigmacamp.enigshop.utils.exception.BadRequestException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,10 @@ import java.util.Date;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
-    @Autowired
-    UserAccountRepository userAccountRepository;
+    private final UserAccountService userAccountService;
 
     @Value("${app.enigshop.jwt.jwt-secret}")
     private String jwtSecret;
@@ -30,13 +31,15 @@ public class JwtServiceImpl implements JwtService {
     private long jwtExpiration;
 
     @Override
-    public String generateToken(UserAccount userAccount) {
+    public String generateToken(String username, String password) {
+        UserAccount userAccount = userAccountService.getUserByPasswordAndUsername(username, password);
+
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtExpiration * 1000);
 
         return JWT.create()
-                .withSubject(userAccount.getUsername())
-                .withClaim("password", userAccount.getPassword())
+                .withSubject(userAccount.getId())
+                .withClaim("role", userAccount.getRole().name())
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
                 .sign(Algorithm.HMAC256(jwtSecret));
@@ -45,23 +48,37 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean verifyJwtToken(String token) {
         try{
+            String parsedToken = parseJwt(token);
+            if(parsedToken == null){
+                throw new BadRequestException("Invalid or expired token");
+            }
+
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtSecret)).build();
-            verifier.verify(token);
+            verifier.verify(parsedToken);
             return true;
         } catch (JWTVerificationException e){
-            log.error("Invalid JWT token: {}", e.getMessage());
-            return false;
+           throw new JWTVerificationException(e.getMessage());
         }
     }
 
 
     @Override
     public JwtClaims getClaimsByToken(String token) {
-        DecodedJWT decodedJWT = JWT.decode(token);
+        try{
+
+        String parsedToken = parseJwt(token);
+        if(parsedToken == null){
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        DecodedJWT decodedJWT = JWT.decode(parsedToken);
         return JwtClaims.builder()
                 .userAccountId(decodedJWT.getSubject())
-                .roles(decodedJWT.getClaim("role").asList(String.class))
+                .roles(decodedJWT.getClaim("role").asString())
                 .build();
+        } catch (JWTVerificationException e){
+            throw new JWTVerificationException(e.getMessage());
+        }
     }
 
     private String parseJwt(String token) {

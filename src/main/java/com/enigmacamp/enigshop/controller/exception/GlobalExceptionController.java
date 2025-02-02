@@ -1,5 +1,6 @@
 package com.enigmacamp.enigshop.controller.exception;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
@@ -9,30 +10,28 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import static com.enigmacamp.enigshop.utils.mapper.ResponseEntityMapper.mapToResponseEntity;
+
 @RestControllerAdvice
 public class GlobalExceptionController {
     @ExceptionHandler({ResourcesNotFoundException.class})
     public ResponseEntity<CommonResponse<String>> handleResourceNotFoundException(ResourcesNotFoundException e){
-        CommonResponse<String> response = CommonResponse.<String>builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .message(e.getMessage())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response);
+       return mapToResponseEntity(
+               HttpStatus.NOT_FOUND,
+               e.getMessage(),
+               null,
+               null
+       );
     }
 
     @ExceptionHandler({BadRequestException.class})
     public ResponseEntity<CommonResponse<String>> handleBadRequestException(BadRequestException e){
-        CommonResponse<String> response = CommonResponse.<String>builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message(e.getMessage())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(response);
+        return mapToResponseEntity(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage(),
+                null,
+                null
+        );
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -42,14 +41,33 @@ public class GlobalExceptionController {
                 e.getRequiredType().getSimpleName(),
                 e.getValue());
 
-        CommonResponse<String> response = CommonResponse.<String>builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message(message)
-                .build();
+        return mapToResponseEntity(
+                HttpStatus.BAD_REQUEST,
+                message,
+                null,
+                null
+        );
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(response);
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MissingRequestHeaderException.class)
+    public ResponseEntity<CommonResponse<String>> handleMissingHeader(Exception e) {
+        return mapToResponseEntity(
+                HttpStatus.UNAUTHORIZED,
+                "Missing Authorization Header",
+                null,
+                null
+        );
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<CommonResponse<String>> handleJwtVerificationException(Exception e){
+        return mapToResponseEntity(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid or Expired token",
+                null,
+                null
+        );
     }
 
 }

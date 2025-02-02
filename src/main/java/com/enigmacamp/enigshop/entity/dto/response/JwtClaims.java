@@ -12,5 +12,5 @@ import java.util.List;
 @Builder
 public class JwtClaims {
     private String userAccountId;
-    private List<String> roles;
+    private String roles;
 }

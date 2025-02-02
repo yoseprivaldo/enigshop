@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.enigmacamp.enigshop.utils.mapper.ResponseEntityMapper.mapToResponseEntity;
+
 @RestController
 @RequestMapping(path = APIUrl.DEPARTMENT_API)
 public class DepartmentController {
@@ -123,23 +125,4 @@ public class DepartmentController {
         );
     }
 
-    // METHOD HELPER
-    private <T> ResponseEntity<CommonResponse<T>> mapToResponseEntity (
-            HttpStatus status,
-            String message,
-            T data,
-            PagingResponse paging){
-
-        CommonResponse<T> response = CommonResponse.<T>builder()
-                .status(status.value())
-                .message(message)
-                .data(data)
-                .paging(paging)
-                .build();
-
-        return ResponseEntity
-                .status(status)
-                .header("content-Type", "application/json")
-                .body(response);
-    }
 }

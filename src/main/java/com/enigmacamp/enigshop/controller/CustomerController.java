@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.enigmacamp.enigshop.utils.mapper.ResponseEntityMapper.mapToResponseEntity;
+
 @RestController
 @RequestMapping(path = APIUrl.CUSTOMER_API)
 @RequiredArgsConstructor
@@ -144,25 +146,6 @@ public class CustomerController {
         );
     }
 
-    // METHOD HELPER
-    private <T> ResponseEntity<CommonResponse<T>> mapToResponseEntity (
-            HttpStatus status,
-            String message,
-            T data,
-            PagingResponse paging
 
-    ){
-        CommonResponse<T> response = CommonResponse.<T>builder()
-                .status(status.value())
-                .message(message)
-                .data(data)
-                .paging(paging)
-                .build();
-
-        return ResponseEntity
-                .status(status)
-                .header("content-Type", "application/json")
-                .body(response);
-    }
 
 }

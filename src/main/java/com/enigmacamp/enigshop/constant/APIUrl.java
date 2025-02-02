@@ -6,4 +6,6 @@ public class APIUrl {
     public static final String CUSTOMER_API = "/api/"+ VERSION + "/customers";
     public static final String DEPARTMENT_API = "/api/"+ VERSION + "/departments";
     public static final String TRANSACTION_API = "/api/"+ VERSION + "/transactions";
+    public static final String USER_ACCOUNT_API = "/api/"+ VERSION + "/userAccount";
+    public static final String AUTH_API = "/api/"+ VERSION + "/auth";
 }
