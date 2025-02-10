@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Builder
@@ -14,4 +16,5 @@ public class CustomerRequest {
     private String phone;
     private String address;
     private Boolean isActive;
+    private Date birthDate;
 }

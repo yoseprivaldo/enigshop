@@ -1,13 +1,11 @@
-package com.enigmacamp.enigshop.utils.mapper.impl;
+package com.enigmacamp.enigshop.utils.mapper;
 
 import com.enigmacamp.enigshop.entity.dto.request.ProductRequest;
 import com.enigmacamp.enigshop.entity.dto.response.ProductResponse;
 import com.enigmacamp.enigshop.entity.Product;
-import com.enigmacamp.enigshop.utils.mapper.ProductMapper;
 
-public class ProductMapperImpl implements ProductMapper {
+public class ProductMapperImpl {
 
-    @Override
     public Product requestToEntity(ProductRequest request) {
         return Product.builder()
                 .id(request.getId())
@@ -19,7 +17,6 @@ public class ProductMapperImpl implements ProductMapper {
 
     }
 
-    @Override
     public ProductResponse entityToResponse(Product entity) {
         return ProductResponse.builder()
                 .id(entity.getId())

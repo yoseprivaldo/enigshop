@@ -8,4 +8,6 @@ public class APIUrl {
     public static final String TRANSACTION_API = "/api/"+ VERSION + "/transactions";
     public static final String USER_ACCOUNT_API = "/api/"+ VERSION + "/userAccount";
     public static final String AUTH_API = "/api/"+ VERSION + "/auth";
+    public static final String IMAGE_API = "/api/"+ VERSION + "/image";
+    public static final String PAYMENT_API = "/api/"+ VERSION + "/payment";
 }

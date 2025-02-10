@@ -2,6 +2,7 @@ package com.enigmacamp.enigshop.controller.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
+import com.enigmacamp.enigshop.utils.exception.BadCredentialException;
 import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,16 @@ public class GlobalExceptionController {
         return mapToResponseEntity(
                 HttpStatus.UNAUTHORIZED,
                 "Invalid or Expired token",
+                null,
+                null
+        );
+    }
+
+    @ExceptionHandler(BadCredentialException.class)
+    public ResponseEntity<CommonResponse<String>> handleBadExceptionCredential(Exception e){
+        return mapToResponseEntity(
+                HttpStatus.UNAUTHORIZED,
+                e.getMessage(),
                 null,
                 null
         );

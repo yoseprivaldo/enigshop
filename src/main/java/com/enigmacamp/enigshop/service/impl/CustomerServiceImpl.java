@@ -9,13 +9,17 @@ import com.enigmacamp.enigshop.entity.Image;
 import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.service.CustomerService;
 import com.enigmacamp.enigshop.service.ImageService;
+import com.enigmacamp.enigshop.utils.exception.BadRequestException;
 import com.enigmacamp.enigshop.utils.exception.ResourcesNotFoundException;
+import com.enigmacamp.enigshop.utils.mapper.CustomerMapper;
 import com.enigmacamp.enigshop.utils.validation.EntityValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static com.enigmacamp.enigshop.utils.mapper.CustomerMapper.mapToCustomerEntity;
+import static com.enigmacamp.enigshop.utils.mapper.CustomerMapper.mapToCustomerResponse;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -29,13 +33,22 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse create(CustomerRequest request) {
-
         EntityValidation.customerRequest(request);
 
-        Customer customer = mapToEntity(request);
+        Customer customer = mapToCustomerEntity(request);
         customer = customerRepository.save(customer);
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
 
+    }
+
+    @Override
+    public Customer create(Customer request) {
+        return customerRepository.save(request);
+    }
+
+    @Override
+    public Customer getByUserAccountId(String userAccountId) {
+        return customerRepository.findByUserAccountId(userAccountId).orElseThrow(() -> new BadRequestException("userAccount not found"));
     }
 
     @Override
@@ -52,12 +65,12 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourcesNotFoundException("Customer not found");
         }
 
-        return customerPage.map(this::mapToResponse);
+        return customerPage.map(CustomerMapper::mapToCustomerResponse);
     }
 
     @Override
     public CustomerResponse getById(String id) {
-        return mapToResponse(getByIdAndThrowException(id));
+        return mapToCustomerResponse(getByIdAndThrowException(id));
     }
 
     public Customer getByIdAndThrowException(String id) {
@@ -72,9 +85,8 @@ public class CustomerServiceImpl implements CustomerService {
         if(request.getEmail() != null) existingCustomer.setEmail(request.getEmail());
         if(request.getAddress() != null) existingCustomer.setAddress(request.getAddress());
         if(request.getPhone() != null) existingCustomer.setPhone(request.getPhone());
-        if(request.getIsActive() != null) existingCustomer.setIsActive(request.getIsActive());
 
-        return mapToResponse(customerRepository.saveAndFlush(existingCustomer));
+        return mapToCustomerResponse(customerRepository.saveAndFlush(existingCustomer));
     }
 
     @Override
@@ -87,41 +99,19 @@ public class CustomerServiceImpl implements CustomerService {
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .address(request.getAddress())
-                .isActive(request.getIsActive())
+                .birthDate(request.getBirthDate())
                 .build();
 
         // Todo: Service to Save Image
         Image image = imageService.create(request.getImage(), "customer");
         customer.setImage(image);
 
-        return mapToResponse(customerRepository.saveAndFlush(customer));
+        return mapToCustomerResponse(customerRepository.saveAndFlush(customer));
     }
 
     @Override
     public void deleteById(String id) {
         Customer customerExisting = getByIdAndThrowException(id);
         customerRepository.delete(customerExisting);
-    }
-
-    public static Customer mapToEntity(CustomerRequest request){
-        return Customer.builder()
-                .id(request.getId())
-                .fullName(request.getFullName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .isActive(request.getIsActive())
-                .build();
-    }
-
-    public CustomerResponse mapToResponse(Customer customer){
-        return CustomerResponse.builder()
-                .id(customer.getId())
-                .fullName(customer.getFullName())
-                .email(customer.getEmail())
-                .phone(customer.getPhone())
-                .address(customer.getAddress())
-                .isActive(customer.getIsActive())
-                .build();
     }
 }

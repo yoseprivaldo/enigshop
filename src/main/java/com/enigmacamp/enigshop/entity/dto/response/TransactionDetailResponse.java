@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TransactionDetailResponse {
     private String id;
-    private ProductResponse productResponse;
+    private ProductResponse product;
     private Long productPrice;
     private Integer qty;
 }

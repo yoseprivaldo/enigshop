@@ -1,6 +1,6 @@
 package com.enigmacamp.enigshop.entity.dto.response;
 
-import com.enigmacamp.enigshop.entity.Customer;
+import com.enigmacamp.enigshop.constant.TransactionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +15,9 @@ import java.util.List;
 @Builder
 public class TransactionResponse {
     private String id;
-    private Customer customer;
+    private CustomerResponse customer;
     private Date date;
     private List<TransactionDetailResponse>  transactionDetails;
     private Long totalPayment;
+    private TransactionStatus status;
 }

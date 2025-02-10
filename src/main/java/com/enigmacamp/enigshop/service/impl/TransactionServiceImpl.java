@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.enigmacamp.enigshop.utils.mapper.CustomerMapper.mapToCustomerResponse;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
@@ -89,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return TransactionResponse.builder()
                 .id(savedTransaction.getId())
-                .customer(savedTransaction.getCustomer())
+                .customer(mapToCustomerResponse(savedTransaction.getCustomer()))
                 .date(savedTransaction.getTransactionDate())
                 .transactionDetails(listDetailResponse) // Todo: need more mapping entity to response
                 .totalPayment(totalPayment.get())
@@ -125,7 +127,16 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionPage.map(this::mapToTransactionResponse);
     }
 
+    @Override
+    public Transaction getById(String transactionId) {
+        return transactionRepository
+                .findById(transactionId)
+                .orElseThrow(() -> new ResourcesNotFoundException("No transaction found with id: " + transactionId));
+    }
 
+    public TransactionResponse getByIdToResponse(String transactionId) {
+        return mapToTransactionResponse(getById(transactionId));
+    }
 
     private TransactionResponse mapToTransactionResponse(Transaction transaction) {
         List<TransactionDetailResponse> detailResponses = transaction.getTransactionDetails().stream()
@@ -134,7 +145,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return TransactionResponse.builder()
                 .id(transaction.getId())
-                .customer(transaction.getCustomer())
+                .customer(mapToCustomerResponse(transaction.getCustomer()))
                 .date(transaction.getTransactionDate())
                 .transactionDetails(detailResponses)
                 .totalPayment(detailResponses.stream()
@@ -154,7 +165,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return TransactionDetailResponse.builder()
                 .id(transactionDetail.getId())
-                .productResponse(productResponse)
+                .product(productResponse)
                 .productPrice(transactionDetail.getProductPrice())
                 .qty(transactionDetail.getQty())
                 .build();

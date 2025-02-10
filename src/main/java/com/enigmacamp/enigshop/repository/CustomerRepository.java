@@ -9,10 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, String>, JpaSpecificationExecutor<Customer> {
-
     @Query(
             "SELECT c FROM Customer c WHERE " +
                     "(:search IS NULL OR LOWER(CAST(c.fullName AS string)) LIKE CONCAT('%', :search, '%') " +
@@ -21,5 +22,5 @@ public interface CustomerRepository extends JpaRepository<Customer, String>, Jpa
     Page<Customer> findAllBySearch(@Param("search") String search, Pageable pageable);
 
     Page<Customer> findByFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(String fullName, String address, Pageable pageable);
-
+    Optional<Customer> findByUserAccountId(String userAccountId);
 }

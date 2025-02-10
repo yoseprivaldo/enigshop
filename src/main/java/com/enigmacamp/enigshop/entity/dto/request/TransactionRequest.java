@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class TransactionRequest {
     private String customerId;
+    private String shippingAddress;
     private List<TransactionDetailRequest> transactionDetail;
-
-
 }

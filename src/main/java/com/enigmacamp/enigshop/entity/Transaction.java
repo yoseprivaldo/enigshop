@@ -2,6 +2,7 @@ package com.enigmacamp.enigshop.entity;
 
 
 import com.enigmacamp.enigshop.constant.ConstantTable;
+import com.enigmacamp.enigshop.constant.TransactionStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,14 @@ public class Transaction {
     @JsonManagedReference
     private List<TransactionDetail> transactionDetails;
 
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "transaction_date", updatable = true)
     private Date transactionDate;
+
+    @OneToOne
+    @JoinColumn(name = "payment_id", unique = true)
+    private Payment payment;
 }

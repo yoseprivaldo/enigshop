@@ -1,6 +1,7 @@
 package com.enigmacamp.enigshop.service.impl;
 
 import com.enigmacamp.enigshop.entity.Image;
+import com.enigmacamp.enigshop.repository.CustomerRepository;
 import com.enigmacamp.enigshop.repository.ImageRepository;
 import com.enigmacamp.enigshop.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,13 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
     private final Path path;
+    private final CustomerRepository customerRepository;
 
     @Autowired
-    public ImageServiceImpl(ImageRepository imageRepository, @Value("${app.enigshop.upload.path}") String path) {
+    public ImageServiceImpl(ImageRepository imageRepository, @Value("${app.enigshop.upload.path}") String path, CustomerRepository customerRepository) {
         this.imageRepository = imageRepository;
         this.path = Paths.get(path);
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -63,6 +66,26 @@ public class ImageServiceImpl implements ImageService {
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+
+    @Override
+    public List<Image> getAllImages() {
+        return imageRepository.findAll();
+    }
+
+    @Override
+    public List<Image> getProductImages(String productId) {
+        return imageRepository.findByProductId(productId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product Not Found")
+        ).getProduct().getImages();
+    }
+
+    @Override
+    public Image getCustomerImage(String customerId) {
+        return customerRepository.findById(customerId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")
+        ).getImage();
     }
 
     @Override

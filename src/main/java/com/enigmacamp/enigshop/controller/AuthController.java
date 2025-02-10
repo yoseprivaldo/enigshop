@@ -1,9 +1,15 @@
 package com.enigmacamp.enigshop.controller;
 
 import com.enigmacamp.enigshop.constant.APIUrl;
+import com.enigmacamp.enigshop.entity.UserAccount;
 import com.enigmacamp.enigshop.entity.dto.request.AuthRequest;
+import com.enigmacamp.enigshop.entity.dto.request.NewCustomerRequest;
+import com.enigmacamp.enigshop.entity.dto.request.NewSpecificUserRequest;
 import com.enigmacamp.enigshop.entity.dto.response.CommonResponse;
 import com.enigmacamp.enigshop.entity.dto.response.JwtClaims;
+import com.enigmacamp.enigshop.entity.dto.response.LoginResponse;
+import com.enigmacamp.enigshop.entity.dto.response.RegisterResponse;
+import com.enigmacamp.enigshop.service.AuthService;
 import com.enigmacamp.enigshop.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +28,11 @@ import static com.enigmacamp.enigshop.utils.mapper.ResponseEntityMapper.mapToRes
 public class AuthController {
 
     private final JwtService jwtService;
+    private final AuthService authService;
 
     @PostMapping("/token")
-    public ResponseEntity<CommonResponse<Object>> generateToken(@RequestBody AuthRequest request){
-        String token = jwtService.generateToken(request.getUsername(), request.getPassword());
+    public ResponseEntity<CommonResponse<Object>> generateToken(@RequestBody UserAccount request){
+        String token = jwtService.generateToken(request);
         Map<String, String> tokenData = Map.of("token", token);
 
         return mapToResponseEntity(
@@ -58,5 +65,44 @@ public class AuthController {
         );
     }
 
+
+    @PostMapping(path = "/login")
+    public ResponseEntity<CommonResponse<LoginResponse>> login(@RequestBody AuthRequest authRequest){
+        LoginResponse loginResponse = authService.login(authRequest);
+
+        return mapToResponseEntity(
+                HttpStatus.OK,
+                "Login Success",
+                loginResponse,
+                null
+        );
+    }
+
+
+    @PostMapping(path = "/register/customer")
+    public ResponseEntity<CommonResponse<RegisterResponse>> register(@RequestBody NewCustomerRequest request){
+
+        RegisterResponse registerResponse = authService.register(request);
+
+        return mapToResponseEntity(
+                HttpStatus.CREATED,
+                "Register success",
+                registerResponse,
+                null
+        );
+    }
+
+    @PostMapping(path = "/register/admin")
+    public ResponseEntity<CommonResponse<RegisterResponse>> registerSpecific(@RequestBody NewSpecificUserRequest request){
+
+        RegisterResponse registerResponse = authService.registerSpecific(request);
+
+        return mapToResponseEntity(
+                HttpStatus.CREATED,
+                "Register success",
+                registerResponse,
+                null
+        );
+    }
 
 }

@@ -8,11 +8,13 @@ import org.springframework.data.domain.Page;
 
 public interface CustomerService {
     CustomerResponse create(CustomerRequest customer);
+    Customer create(Customer request);
     Page<CustomerResponse> getAll(SearchRequest request);
     CustomerResponse getById(String id);
     CustomerResponse updatePatch(CustomerRequest customer);
     CustomerResponse updatePut(UpdateCustomerRequest request);
     void deleteById(String id);
     Customer getByIdAndThrowException(String id);
+    Customer getByUserAccountId(String userAccountId);
 
 }

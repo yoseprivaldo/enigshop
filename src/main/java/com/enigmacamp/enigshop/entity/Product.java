@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Builder
+@ToString
 @Entity
 @Table(name = "products")
 @AllArgsConstructor
@@ -31,6 +32,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
+    @ToString.Exclude
     private List<Image> images = new ArrayList<>();
 
 }

@@ -1,20 +1,24 @@
 package com.enigmacamp.enigshop.entity;
-import com.enigmacamp.enigshop.constant.ROLE;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "user_accounts")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserAccount {
+public class UserAccount implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -25,25 +29,35 @@ public class UserAccount {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ROLE role;
+    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isActive;
 
-    @OneToOne(mappedBy =  "userAccount", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @JsonIgnore
-    private Customer customer;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Role> roles;
 
-    public UserAccount (String username, String password){
-        this.role = ROLE.ROLES_CUSTOMER;
-        this.username = username;
-        this.password = password;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName().name())).toList();
     }
 
-    public UserAccount (String username, String password, ROLE role){
-        this.role = role;
-        this.username = username;
-        this.password = password;
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
     }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
